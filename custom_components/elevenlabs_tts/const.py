@@ -35,3 +35,16 @@ MODEL_OPTIONS: tuple[str, ...] = (
 OUTPUT_FORMAT_MP3 = "mp3_44100_128"
 
 API_BASE_URL = "https://api.elevenlabs.io"
+
+# Broad ISO 639-1 coverage for Home Assistant language validation.
+# The integration does not try to enforce model-specific language support and
+# simply forwards the requested language_code to ElevenLabs.
+SUPPORTED_LANGUAGES: tuple[str, ...] = (
+    "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "cs", "cy", "da",
+    "de", "el", "en", "es", "et", "eu", "fa", "fi", "fr", "ga", "gl", "gu",
+    "he", "hi", "hr", "hu", "hy", "id", "is", "it", "ja", "ka", "kk", "km",
+    "kn", "ko", "lo", "lt", "lv", "mk", "ml", "mn", "mr", "ms", "mt", "my",
+    "ne", "nl", "no", "pa", "pl", "ps", "pt", "ro", "si", "sk", "sl",
+    "sq", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur", "uz",
+    "vi", "zh",
+)

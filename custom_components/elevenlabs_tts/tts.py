@@ -35,6 +35,7 @@ from .const import (
     DEFAULT_STYLE,
     DOMAIN,
     STREAMING_MODE_STREAM,
+    SUPPORTED_LANGUAGES,
     SUBENTRY_TYPE_VOICE,
 )
 from .elevenlabs_api import (
@@ -85,8 +86,8 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
 
     @property
     def supported_languages(self) -> list[str]:
-        """Return a wildcard language list and pass languages through to ElevenLabs."""
-        return ["*"]
+        """Return a broad language list for Home Assistant validation."""
+        return list(SUPPORTED_LANGUAGES)
 
     @property
     def supported_options(self) -> list[str]:
