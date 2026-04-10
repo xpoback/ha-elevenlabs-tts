@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import random
 from typing import Any
 
 import voluptuous as vol
@@ -21,17 +22,26 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import selector
 
 from .const import (
+    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+    CONF_APPLY_TEXT_NORMALIZATION,
     CONF_MODEL,
     CONF_PROFILE_NAME,
+    CONF_SEED,
+    CONF_SEED_ENABLED,
     CONF_SIMILARITY_BOOST,
     CONF_SPEAKER_BOOST,
+    CONF_SPEED,
     CONF_STABILITY,
     CONF_STREAMING_MODE,
     CONF_STYLE,
     CONF_VOICE_ID,
+    DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+    DEFAULT_APPLY_TEXT_NORMALIZATION,
     DEFAULT_MODEL,
+    DEFAULT_SEED_ENABLED,
     DEFAULT_SIMILARITY_BOOST,
     DEFAULT_SPEAKER_BOOST,
+    DEFAULT_SPEED,
     DEFAULT_STABILITY,
     DEFAULT_STREAMING_MODE,
     DEFAULT_STYLE,
@@ -58,6 +68,9 @@ def _profile_unique_id(voice_id: str) -> str:
 def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     """Return the schema for a voice subentry."""
     defaults = defaults or {}
+    seed_default = defaults.get(CONF_SEED)
+    if seed_default is None:
+        seed_default = random.randint(0, 4_294_967_295)
     return vol.Schema(
         {
             vol.Required(
@@ -112,8 +125,55 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                 {"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}
             ),
             vol.Optional(
+                CONF_SPEED,
+                default=defaults.get(CONF_SPEED, DEFAULT_SPEED),
+            ): selector(
+                {"number": {"min": 0.7, "max": 1.2, "step": 0.01, "mode": "box"}}
+            ),
+            vol.Optional(
                 CONF_SPEAKER_BOOST,
                 default=defaults.get(CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST),
+            ): selector({"boolean": {}}),
+            vol.Optional(
+                CONF_SEED_ENABLED,
+                default=defaults.get(CONF_SEED_ENABLED, DEFAULT_SEED_ENABLED),
+            ): selector({"boolean": {}}),
+            vol.Optional(
+                CONF_SEED,
+                default=seed_default,
+            ): selector(
+                {
+                    "number": {
+                        "min": 0,
+                        "max": 4294967295,
+                        "step": 1,
+                        "mode": "box",
+                    }
+                }
+            ),
+            vol.Optional(
+                CONF_APPLY_TEXT_NORMALIZATION,
+                default=defaults.get(
+                    CONF_APPLY_TEXT_NORMALIZATION, DEFAULT_APPLY_TEXT_NORMALIZATION
+                ),
+            ): selector(
+                {
+                    "select": {
+                        "options": [
+                            {"value": "auto", "label": "Auto"},
+                            {"value": "on", "label": "On"},
+                            {"value": "off", "label": "Off"},
+                        ],
+                        "mode": "list",
+                    }
+                }
+            ),
+            vol.Optional(
+                CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+                default=defaults.get(
+                    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+                    DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+                ),
             ): selector({"boolean": {}}),
         }
     )

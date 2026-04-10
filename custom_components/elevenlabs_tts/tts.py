@@ -19,18 +19,27 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import ElevenLabsConfigEntry
 from .const import (
+    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+    CONF_APPLY_TEXT_NORMALIZATION,
     CONF_LANGUAGE_CODE,
     CONF_MODEL,
     CONF_PROFILE_NAME,
+    CONF_SEED,
+    CONF_SEED_ENABLED,
     CONF_SIMILARITY_BOOST,
     CONF_SPEAKER_BOOST,
+    CONF_SPEED,
     CONF_STABILITY,
     CONF_STREAMING_MODE,
     CONF_STYLE,
     CONF_VOICE_ID,
+    DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+    DEFAULT_APPLY_TEXT_NORMALIZATION,
     DEFAULT_MODEL,
+    DEFAULT_SEED_ENABLED,
     DEFAULT_SIMILARITY_BOOST,
     DEFAULT_SPEAKER_BOOST,
+    DEFAULT_SPEED,
     DEFAULT_STABILITY,
     DEFAULT_STREAMING_MODE,
     DEFAULT_STYLE,
@@ -103,7 +112,12 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
             CONF_STABILITY,
             CONF_SIMILARITY_BOOST,
             CONF_STYLE,
+            CONF_SPEED,
             CONF_SPEAKER_BOOST,
+            CONF_SEED_ENABLED,
+            CONF_SEED,
+            CONF_APPLY_TEXT_NORMALIZATION,
+            CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
             CONF_LANGUAGE_CODE,
         ]
 
@@ -121,8 +135,20 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 CONF_SIMILARITY_BOOST, DEFAULT_SIMILARITY_BOOST
             ),
             CONF_STYLE: self._voice_subentry.data.get(CONF_STYLE, DEFAULT_STYLE),
+            CONF_SPEED: self._voice_subentry.data.get(CONF_SPEED, DEFAULT_SPEED),
             CONF_SPEAKER_BOOST: self._voice_subentry.data.get(
                 CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST
+            ),
+            CONF_SEED_ENABLED: self._voice_subentry.data.get(
+                CONF_SEED_ENABLED, DEFAULT_SEED_ENABLED
+            ),
+            CONF_SEED: self._voice_subentry.data.get(CONF_SEED),
+            CONF_APPLY_TEXT_NORMALIZATION: self._voice_subentry.data.get(
+                CONF_APPLY_TEXT_NORMALIZATION, DEFAULT_APPLY_TEXT_NORMALIZATION
+            ),
+            CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION: self._voice_subentry.data.get(
+                CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+                DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
             ),
         }
 
@@ -145,6 +171,13 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                     model=merged_options[CONF_MODEL],
                     voice_settings=self._voice_settings(merged_options),
                     language_code=merged_options.get(CONF_LANGUAGE_CODE),
+                    seed=self._seed_value(merged_options),
+                    apply_text_normalization=merged_options.get(
+                        CONF_APPLY_TEXT_NORMALIZATION
+                    ),
+                    apply_language_text_normalization=merged_options.get(
+                        CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                    ),
                 ):
                     audio.extend(chunk)
                 return ("mp3", bytes(audio))
@@ -155,6 +188,13 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 model=merged_options[CONF_MODEL],
                 voice_settings=self._voice_settings(merged_options),
                 language_code=merged_options.get(CONF_LANGUAGE_CODE),
+                seed=self._seed_value(merged_options),
+                apply_text_normalization=merged_options.get(
+                    CONF_APPLY_TEXT_NORMALIZATION
+                ),
+                apply_language_text_normalization=merged_options.get(
+                    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                ),
             )
             return ("mp3", audio)
         except ElevenLabsAuthError as err:
@@ -186,6 +226,13 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                     model=merged_options[CONF_MODEL],
                     voice_settings=self._voice_settings(merged_options),
                     language_code=merged_options.get(CONF_LANGUAGE_CODE),
+                    seed=self._seed_value(merged_options),
+                    apply_text_normalization=merged_options.get(
+                        CONF_APPLY_TEXT_NORMALIZATION
+                    ),
+                    apply_language_text_normalization=merged_options.get(
+                        CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                    ),
                 )
                 yield audio
                 return
@@ -196,6 +243,13 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 model=merged_options[CONF_MODEL],
                 voice_settings=self._voice_settings(merged_options),
                 language_code=merged_options.get(CONF_LANGUAGE_CODE),
+                seed=self._seed_value(merged_options),
+                apply_text_normalization=merged_options.get(
+                    CONF_APPLY_TEXT_NORMALIZATION
+                ),
+                apply_language_text_normalization=merged_options.get(
+                    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                ),
             ):
                 yield audio_chunk
 
@@ -216,5 +270,13 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
             "stability": float(options[CONF_STABILITY]),
             "similarity_boost": float(options[CONF_SIMILARITY_BOOST]),
             "style": float(options[CONF_STYLE]),
+            "speed": float(options[CONF_SPEED]),
             "use_speaker_boost": bool(options[CONF_SPEAKER_BOOST]),
         }
+
+    def _seed_value(self, options: dict[str, Any]) -> int | None:
+        """Return the configured seed when enabled."""
+        if not options.get(CONF_SEED_ENABLED):
+            return None
+        seed = options.get(CONF_SEED)
+        return int(seed) if seed is not None else None

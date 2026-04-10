@@ -7,7 +7,11 @@ from typing import Any
 
 import aiohttp
 
-from .const import API_BASE_URL, CONF_LANGUAGE_CODE, OUTPUT_FORMAT_MP3
+from .const import (
+    API_BASE_URL,
+    CONF_LANGUAGE_CODE,
+    OUTPUT_FORMAT_MP3,
+)
 
 
 class ElevenLabsApiError(Exception):
@@ -51,6 +55,9 @@ class ElevenLabsApiClient:
         model: str,
         voice_settings: dict[str, Any],
         language_code: str | None = None,
+        seed: int | None = None,
+        apply_text_normalization: str | None = None,
+        apply_language_text_normalization: bool | None = None,
     ) -> bytes:
         """Generate TTS audio and return the full payload."""
         payload = self._build_tts_payload(
@@ -58,6 +65,9 @@ class ElevenLabsApiClient:
             model=model,
             voice_settings=voice_settings,
             language_code=language_code,
+            seed=seed,
+            apply_text_normalization=apply_text_normalization,
+            apply_language_text_normalization=apply_language_text_normalization,
         )
         return await self._request_bytes(
             "POST",
@@ -74,6 +84,9 @@ class ElevenLabsApiClient:
         model: str,
         voice_settings: dict[str, Any],
         language_code: str | None = None,
+        seed: int | None = None,
+        apply_text_normalization: str | None = None,
+        apply_language_text_normalization: bool | None = None,
     ) -> AsyncGenerator[bytes, None]:
         """Generate streaming TTS audio."""
         payload = self._build_tts_payload(
@@ -81,6 +94,9 @@ class ElevenLabsApiClient:
             model=model,
             voice_settings=voice_settings,
             language_code=language_code,
+            seed=seed,
+            apply_text_normalization=apply_text_normalization,
+            apply_language_text_normalization=apply_language_text_normalization,
         )
         async for chunk in self._stream_bytes(
             "POST",
@@ -97,6 +113,9 @@ class ElevenLabsApiClient:
         model: str,
         voice_settings: dict[str, Any],
         language_code: str | None,
+        seed: int | None,
+        apply_text_normalization: str | None,
+        apply_language_text_normalization: bool | None,
     ) -> dict[str, Any]:
         """Build the ElevenLabs request payload."""
         payload: dict[str, Any] = {
@@ -106,6 +125,14 @@ class ElevenLabsApiClient:
         }
         if language_code:
             payload[CONF_LANGUAGE_CODE] = language_code
+        if seed is not None:
+            payload["seed"] = seed
+        if apply_text_normalization is not None:
+            payload["apply_text_normalization"] = apply_text_normalization
+        if apply_language_text_normalization is not None:
+            payload["apply_language_text_normalization"] = (
+                apply_language_text_normalization
+            )
         return payload
 
     async def _request_json(

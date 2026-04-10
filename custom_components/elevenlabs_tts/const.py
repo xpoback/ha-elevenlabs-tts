@@ -4,11 +4,16 @@ from __future__ import annotations
 
 DOMAIN = "elevenlabs_tts"
 
+CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION = "apply_language_text_normalization"
+CONF_APPLY_TEXT_NORMALIZATION = "apply_text_normalization"
 CONF_LANGUAGE_CODE = "language_code"
 CONF_MODEL = "model"
 CONF_PROFILE_NAME = "profile_name"
+CONF_SEED = "seed"
+CONF_SEED_ENABLED = "seed_enabled"
 CONF_SIMILARITY_BOOST = "similarity_boost"
 CONF_SPEAKER_BOOST = "speaker_boost"
+CONF_SPEED = "speed"
 CONF_STABILITY = "stability"
 CONF_STREAMING_MODE = "streaming_mode"
 CONF_STYLE = "style"
@@ -17,10 +22,14 @@ CONF_VOICE_ID = "voice_id"
 SUBENTRY_TYPE_VOICE = "voice"
 
 DEFAULT_MODEL = "eleven_multilingual_v2"
+DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION = False
+DEFAULT_APPLY_TEXT_NORMALIZATION = "auto"
+DEFAULT_SEED_ENABLED = False
 DEFAULT_STABILITY = 0.5
 DEFAULT_SIMILARITY_BOOST = 0.75
 DEFAULT_STYLE = 0.0
 DEFAULT_SPEAKER_BOOST = True
+DEFAULT_SPEED = 1.0
 DEFAULT_STREAMING_MODE = "convert"
 
 STREAMING_MODE_CONVERT = "convert"

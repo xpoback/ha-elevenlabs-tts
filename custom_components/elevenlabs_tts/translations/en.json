@@ -6,6 +6,9 @@
         "description": "Configure the ElevenLabs account used by voice entities.",
         "data": {
           "api_key": "API key"
+        },
+        "data_description": {
+          "api_key": "Your ElevenLabs API key used by all configured voices."
         }
       },
       "reconfigure": {
@@ -13,6 +16,9 @@
         "description": "Replace the API key for this ElevenLabs integration.",
         "data": {
           "api_key": "API key"
+        },
+        "data_description": {
+          "api_key": "Replace the ElevenLabs API key without recreating your configured voices."
         }
       },
       "reauth_confirm": {
@@ -20,6 +26,9 @@
         "description": "The stored ElevenLabs API key is no longer valid. Enter a replacement key.",
         "data": {
           "api_key": "API key"
+        },
+        "data_description": {
+          "api_key": "Enter a valid ElevenLabs API key to restore the integration."
         }
       }
     },
@@ -58,7 +67,27 @@
             "stability": "Stability",
             "similarity_boost": "Similarity boost",
             "style": "Style",
-            "speaker_boost": "Speaker boost"
+            "speed": "Speed",
+            "speaker_boost": "Speaker boost",
+            "seed_enabled": "Use fixed seed",
+            "seed": "Seed",
+            "apply_text_normalization": "Text normalization",
+            "apply_language_text_normalization": "Language text normalization"
+          },
+          "data_description": {
+            "profile_name": "Entity label shown in Home Assistant for this voice configuration.",
+            "voice_id": "Exact ElevenLabs voice ID to use for synthesis requests.",
+            "model": "Curated ElevenLabs model selection for this voice.",
+            "streaming_mode": "Choose whether this voice defaults to standard conversion or streaming requests.",
+            "stability": "Lower values allow more expressive variation; higher values sound more consistent.",
+            "similarity_boost": "Higher values try to stay closer to the original source voice.",
+            "style": "Increases stylistic exaggeration, which can add expression at the cost of latency.",
+            "speed": "Playback speed multiplier passed to ElevenLabs voice settings.",
+            "speaker_boost": "Boosts similarity and clarity for some voices, with some extra processing cost.",
+            "seed_enabled": "When enabled, reuse the same seed for this voice to make results more repeatable.",
+            "seed": "Deterministic seed sent to ElevenLabs when fixed seed is enabled.",
+            "apply_text_normalization": "Controls whether ElevenLabs rewrites numbers, dates, and similar text before synthesis.",
+            "apply_language_text_normalization": "Extra language-aware normalization. ElevenLabs warns this can add latency and is only supported for some languages."
           }
         },
         "reconfigure": {
@@ -72,7 +101,27 @@
             "stability": "Stability",
             "similarity_boost": "Similarity boost",
             "style": "Style",
-            "speaker_boost": "Speaker boost"
+            "speed": "Speed",
+            "speaker_boost": "Speaker boost",
+            "seed_enabled": "Use fixed seed",
+            "seed": "Seed",
+            "apply_text_normalization": "Text normalization",
+            "apply_language_text_normalization": "Language text normalization"
+          },
+          "data_description": {
+            "profile_name": "Entity label shown in Home Assistant for this voice configuration.",
+            "voice_id": "Exact ElevenLabs voice ID to use for synthesis requests.",
+            "model": "Curated ElevenLabs model selection for this voice.",
+            "streaming_mode": "Choose whether this voice defaults to standard conversion or streaming requests.",
+            "stability": "Lower values allow more expressive variation; higher values sound more consistent.",
+            "similarity_boost": "Higher values try to stay closer to the original source voice.",
+            "style": "Increases stylistic exaggeration, which can add expression at the cost of latency.",
+            "speed": "Playback speed multiplier passed to ElevenLabs voice settings.",
+            "speaker_boost": "Boosts similarity and clarity for some voices, with some extra processing cost.",
+            "seed_enabled": "When enabled, reuse the same seed for this voice to make results more repeatable.",
+            "seed": "Deterministic seed sent to ElevenLabs when fixed seed is enabled.",
+            "apply_text_normalization": "Controls whether ElevenLabs rewrites numbers, dates, and similar text before synthesis.",
+            "apply_language_text_normalization": "Extra language-aware normalization. ElevenLabs warns this can add latency and is only supported for some languages."
           }
         }
       },
