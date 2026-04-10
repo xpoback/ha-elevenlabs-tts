@@ -1,0 +1,153 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ElevenLabs hinzufügen",
+        "description": "Konfigurieren Sie das ElevenLabs-Konto, das von den Sprachentitäten verwendet wird.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        },
+        "data_description": {
+          "api_key": "Ihr ElevenLabs-API-Schlüssel, der von allen konfigurierten Stimmen verwendet wird."
+        }
+      },
+      "reconfigure": {
+        "title": "ElevenLabs-API-Schlüssel aktualisieren",
+        "description": "Ersetzen Sie den API-Schlüssel für diese ElevenLabs-Integration.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        },
+        "data_description": {
+          "api_key": "Ersetzen Sie den ElevenLabs-API-Schlüssel, ohne Ihre konfigurierten Stimmen neu zu erstellen."
+        }
+      },
+      "reauth_confirm": {
+        "title": "ElevenLabs erneut verbinden",
+        "description": "Der gespeicherte ElevenLabs-API-Schlüssel ist nicht mehr gültig. Geben Sie einen Ersatzschlüssel ein.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        },
+        "data_description": {
+          "api_key": "Geben Sie einen gültigen ElevenLabs-API-Schlüssel ein, um die Integration wiederherzustellen."
+        }
+      }
+    },
+    "error": {
+      "invalid_api_key": "Der API-Schlüssel ist ungültig.",
+      "cannot_connect": "Verbindung zu ElevenLabs nicht möglich.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "single_instance_allowed": "Es kann nur eine ElevenLabs-Integration konfiguriert werden.",
+      "reconfigure_successful": "Konfiguration aktualisiert.",
+      "reauth_successful": "Erneute Verbindung erfolgreich."
+    }
+  },
+  "options": {
+    "abort": {
+      "no_options_available": "Verwenden Sie „Neu konfigurieren“ für den API-Schlüssel und Untereinträge für Stimmen."
+    }
+  },
+  "config_subentries": {
+    "voice": {
+      "entry_type": "Stimme",
+      "initiate_flow": {
+        "user": "Stimme hinzufügen",
+        "reconfigure": "Stimme neu konfigurieren"
+      },
+      "step": {
+        "user": {
+          "title": "ElevenLabs-Stimme hinzufügen: Grundeinstellungen",
+          "description": "Schritt 1 von 2. Legen Sie die grundlegende Identität und das Modell für diese Stimmenentität fest.",
+          "data": {
+            "profile_name": "Stimmenname",
+            "voice_id": "ElevenLabs-Stimmen-ID",
+            "model": "Modell",
+            "streaming_mode": "Ausgabemodus"
+          },
+          "data_description": {
+            "profile_name": "Name, der in Home Assistant für diese Stimmenentität angezeigt wird.",
+            "voice_id": "Exakte ElevenLabs-Stimmen-ID, die für Syntheseanfragen verwendet wird.",
+            "model": "Ausgewählte ElevenLabs-Modelloption für diese Stimme.",
+            "streaming_mode": "Wählen Sie, ob diese Stimme standardmäßig normale Konvertierung oder latenzarmes Streaming verwendet."
+          }
+        },
+        "voice_options": {
+          "title": "ElevenLabs-Stimme hinzufügen: Sprachparameter",
+          "description": "Schritt 2 von 2. Legen Sie die Sprachparameter und modellspezifischen Optionen fest. Eleven v3 verwendet Audio-Tags zur Steuerung der Geschwindigkeit und unterstützt kein Speaker Boost.",
+          "data": {
+            "stability": "Stabilität",
+            "similarity_boost": "Ähnlichkeitsverstärkung",
+            "style": "Stilbetonung",
+            "speed": "Geschwindigkeitsfaktor",
+            "speaker_boost": "Speaker Boost",
+            "seed_enabled": "Fester Seed",
+            "seed": "Seed-Wert",
+            "apply_text_normalization": "Textnormalisierungsmodus",
+            "apply_language_text_normalization": "Sprachabhängige Normalisierung"
+          },
+          "data_description": {
+            "stability": "Niedrigere Werte erlauben mehr expressive Variation, höhere Werte sorgen für konsistenteren Klang.",
+            "similarity_boost": "Höhere Werte versuchen, näher an der ursprünglichen Stimme zu bleiben.",
+            "style": "Erhöht die stilistische Betonung. Höhere Werte können mehr Ausdruck bringen, aber auch die Latenz erhöhen.",
+            "speed": "Steuert die Sprechgeschwindigkeit in den ElevenLabs-Stimmeinstellungen. Niedrigere Werte verlangsamen die Sprache, höhere Werte beschleunigen sie.",
+            "speaker_boost": "Verbessert Ähnlichkeit und Klarheit der Stimme bei unterstützten Stimmen, benötigt aber zusätzliche Verarbeitung.",
+            "seed_enabled": "Aktiviert deterministische Generierung für diese Stimme, damit wiederholte Anfragen konsistenter sind.",
+            "seed": "Ganzzahliger Seed für eine bestmögliche deterministische Generierung. ElevenLabs weist darauf hin, dass vollständige Deterministik nicht garantiert ist.",
+            "apply_text_normalization": "Steuert, ob ElevenLabs Zahlen, Datumsangaben und ähnlichen Text vor der Synthese umschreibt: auto lässt das Modell entscheiden, on normalisiert immer, off überspringt die Normalisierung.",
+            "apply_language_text_normalization": "Fügt sprachspezifische Textnormalisierung für unterstützte Sprachen hinzu. ElevenLabs weist darauf hin, dass dies die Latenz deutlich erhöhen kann."
+          }
+        },
+        "reconfigure": {
+          "title": "ElevenLabs-Stimme aktualisieren: Grundeinstellungen",
+          "description": "Schritt 1 von 2. Ändern Sie die grundlegende Identität und das Modell für diese TTS-Stimmenentität.",
+          "data": {
+            "profile_name": "Stimmenname",
+            "voice_id": "ElevenLabs-Stimmen-ID",
+            "model": "Modell",
+            "streaming_mode": "Ausgabemodus"
+          },
+          "data_description": {
+            "profile_name": "Name, der in Home Assistant für diese Stimmenentität angezeigt wird.",
+            "voice_id": "Exakte ElevenLabs-Stimmen-ID, die für Syntheseanfragen verwendet wird.",
+            "model": "Ausgewählte ElevenLabs-Modelloption für diese Stimme.",
+            "streaming_mode": "Wählen Sie, ob diese Stimme standardmäßig normale Konvertierung oder latenzarmes Streaming verwendet."
+          }
+        },
+        "reconfigure_voice_options": {
+          "title": "ElevenLabs-Stimme aktualisieren: Sprachparameter",
+          "description": "Schritt 2 von 2. Ändern Sie die Sprachparameter und modellspezifischen Optionen. Eleven v3 verwendet Audio-Tags zur Steuerung der Geschwindigkeit und unterstützt kein Speaker Boost.",
+          "data": {
+            "stability": "Stabilität",
+            "similarity_boost": "Ähnlichkeitsverstärkung",
+            "style": "Stilbetonung",
+            "speed": "Geschwindigkeitsfaktor",
+            "speaker_boost": "Speaker Boost",
+            "seed_enabled": "Fester Seed",
+            "seed": "Seed-Wert",
+            "apply_text_normalization": "Textnormalisierungsmodus",
+            "apply_language_text_normalization": "Sprachabhängige Normalisierung"
+          },
+          "data_description": {
+            "stability": "Niedrigere Werte erlauben mehr expressive Variation, höhere Werte sorgen für konsistenteren Klang.",
+            "similarity_boost": "Höhere Werte versuchen, näher an der ursprünglichen Stimme zu bleiben.",
+            "style": "Erhöht die stilistische Betonung. Höhere Werte können mehr Ausdruck bringen, aber auch die Latenz erhöhen.",
+            "speed": "Steuert die Sprechgeschwindigkeit in den ElevenLabs-Stimmeinstellungen. Niedrigere Werte verlangsamen die Sprache, höhere Werte beschleunigen sie.",
+            "speaker_boost": "Verbessert Ähnlichkeit und Klarheit der Stimme bei unterstützten Stimmen, benötigt aber zusätzliche Verarbeitung.",
+            "seed_enabled": "Aktiviert deterministische Generierung für diese Stimme, damit wiederholte Anfragen konsistenter sind.",
+            "seed": "Ganzzahliger Seed für eine bestmögliche deterministische Generierung. ElevenLabs weist darauf hin, dass vollständige Deterministik nicht garantiert ist.",
+            "apply_text_normalization": "Steuert, ob ElevenLabs Zahlen, Datumsangaben und ähnlichen Text vor der Synthese umschreibt: auto lässt das Modell entscheiden, on normalisiert immer, off überspringt die Normalisierung.",
+            "apply_language_text_normalization": "Fügt sprachspezifische Textnormalisierung für unterstützte Sprachen hinzu. ElevenLabs weist darauf hin, dass dies die Latenz deutlich erhöhen kann."
+          }
+        }
+      },
+      "error": {
+        "already_exists": "Eine Stimme mit diesem Namen existiert bereits."
+      },
+      "abort": {
+        "subentry_not_found": "Stimmeneintrag nicht gefunden.",
+        "reconfigure_successful": "Stimme aktualisiert."
+      }
+    }
+  }
+}
