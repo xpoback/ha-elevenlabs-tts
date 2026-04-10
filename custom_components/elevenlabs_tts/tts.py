@@ -68,7 +68,7 @@ async def async_setup_entry(
 class ElevenLabsVoiceEntity(TextToSpeechEntity):
     """A per-voice ElevenLabs TTS entity."""
 
-    _attr_has_entity_name = True
+    _attr_has_entity_name = False
     _attr_should_poll = False
 
     def __init__(self, *, parent_entry: ElevenLabsConfigEntry, voice_subentry: ConfigEntry) -> None:
@@ -77,7 +77,7 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
         self._voice_subentry = voice_subentry
 
         self._attr_unique_id = voice_subentry.data["unique_id"]
-        self._attr_name = voice_subentry.data[CONF_PROFILE_NAME]
+        self._attr_name = f"ElevenLabs TTS {voice_subentry.data[CONF_PROFILE_NAME]}"
 
     @property
     def default_language(self) -> str:
@@ -120,16 +120,6 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
             CONF_SPEAKER_BOOST: self._voice_subentry.data.get(
                 CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST
             ),
-        }
-
-    @property
-    def device_info(self) -> dict[str, Any]:
-        """Return device information for the voice entity."""
-        return {
-            "identifiers": {(DOMAIN, self._attr_unique_id)},
-            "manufacturer": "ElevenLabs",
-            "model": self._voice_subentry.data.get(CONF_MODEL, DEFAULT_MODEL),
-            "name": self._voice_subentry.data[CONF_PROFILE_NAME],
         }
 
     async def async_get_tts_audio(
