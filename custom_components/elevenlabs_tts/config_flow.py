@@ -299,13 +299,14 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
             ):
                 errors["base"] = "already_exists"
             else:
-                return self.async_update_reload_and_abort(
+                return self.async_update_and_abort(
+                    self._get_entry(),
                     subentry,
-                    data_updates={
+                    data={
+                        **subentry.data,
                         **user_input,
                         "unique_id": subentry.data.get(
-                            "unique_id",
-                            _profile_unique_id(user_input[CONF_VOICE_ID]),
+                            "unique_id", _profile_unique_id(user_input[CONF_VOICE_ID])
                         ),
                     },
                     title=user_input[CONF_PROFILE_NAME],

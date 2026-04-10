@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 import logging
+import re
 from typing import Any
 
 from homeassistant.components.tts import (
@@ -78,6 +79,9 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
 
         self._attr_unique_id = voice_subentry.data["unique_id"]
         self._attr_name = f"ElevenLabs TTS {voice_subentry.data[CONF_PROFILE_NAME]}"
+        self._attr_config_entry_id = getattr(voice_subentry, "subentry_id", parent_entry.entry_id)
+        profile_slug = re.sub(r"[^a-z0-9_]+", "_", voice_subentry.data[CONF_PROFILE_NAME].lower())
+        self.entity_id = f"tts.elevenlabs_tts_{profile_slug.strip('_') or 'voice'}"
 
     @property
     def default_language(self) -> str:
