@@ -21,7 +21,8 @@ Custom Home Assistant TTS integration for ElevenLabs with a focus on practical d
 - Multiple voice entities under one ElevenLabs account
 - Support for `eleven_multilingual_v2`, `eleven_turbo_v2_5`, and `eleven_v3`
 - Support for conversion and streaming TTS
-- Per-voice parameters such as model, voice ID, streaming mode, stability, similarity, style, speed, normalization, seed, and speaker boost where supported
+- Per-voice parameters such as model, voice ID, streaming mode, stability, similarity, style, normalization, seed, and speaker boost where supported
+- Speed control for `eleven_multilingual_v2` and `eleven_turbo_v2_5`
 - Assist / pipeline friendly TTS entities
 - Automation-friendly `tts.*` entities
 - Model-specific UI behavior for `eleven_v3`, including hiding unsupported options
@@ -80,6 +81,7 @@ Each configured voice becomes its own TTS entity.
 
 - Multiple Home Assistant voice entities can reuse the same ElevenLabs voice ID with different settings.
 - `eleven_v3` behaves differently from older models, and the UI adapts to that.
+- Speed control is currently exposed for model families v2 and v2.5, not for `eleven_v3`.
 - Streaming uses a startup buffer to reduce clipped audio at playback start.
 
 ## Inspiration
