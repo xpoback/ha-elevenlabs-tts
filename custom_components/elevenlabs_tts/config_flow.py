@@ -102,7 +102,7 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                             {"value": STREAMING_MODE_CONVERT, "label": "Convert"},
                             {"value": STREAMING_MODE_STREAM, "label": "Stream"},
                         ],
-                        "mode": "list",
+                        "mode": "dropdown",
                     }
                 }
             ),
@@ -164,7 +164,7 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                             {"value": "on", "label": "On"},
                             {"value": "off", "label": "Off"},
                         ],
-                        "mode": "list",
+                        "mode": "dropdown",
                     }
                 }
             ),
