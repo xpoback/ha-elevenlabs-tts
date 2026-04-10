@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add ElevenLabs",
+        "description": "Configure the ElevenLabs account used by voice entities.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
+      "reconfigure": {
+        "title": "Update ElevenLabs API key",
+        "description": "Replace the API key for this ElevenLabs integration.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconnect ElevenLabs",
+        "description": "The stored ElevenLabs API key is no longer valid. Enter a replacement key.",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_api_key": "The API key is invalid.",
+      "cannot_connect": "Cannot connect to ElevenLabs.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "single_instance_allowed": "Only one ElevenLabs integration can be configured.",
+      "reconfigure_successful": "Configuration updated.",
+      "reauth_successful": "Reconnected successfully."
+    }
+  },
+  "options": {
+    "abort": {
+      "no_options_available": "Use reconfigure for the API key and subentries for voices."
+    }
+  },
+  "config_subentries": {
+    "voice": {
+      "entry_type": "voice",
+      "initiate_flow": {
+        "user": "Add voice",
+        "reconfigure": "Reconfigure voice"
+      },
+      "step": {
+        "user": {
+          "title": "Add ElevenLabs voice",
+          "description": "Create a TTS voice entity backed by the configured ElevenLabs account.",
+          "data": {
+            "profile_name": "Voice name",
+            "voice_id": "Voice ID",
+            "model": "Model",
+            "streaming_mode": "Output mode",
+            "stability": "Stability",
+            "similarity_boost": "Similarity boost",
+            "style": "Style",
+            "speaker_boost": "Speaker boost"
+          }
+        },
+        "reconfigure": {
+          "title": "Update ElevenLabs voice",
+          "description": "Change the settings for this TTS voice entity.",
+          "data": {
+            "profile_name": "Voice name",
+            "voice_id": "Voice ID",
+            "model": "Model",
+            "streaming_mode": "Output mode",
+            "stability": "Stability",
+            "similarity_boost": "Similarity boost",
+            "style": "Style",
+            "speaker_boost": "Speaker boost"
+          }
+        }
+      },
+      "error": {
+        "already_exists": "A voice with this name already exists."
+      },
+      "abort": {
+        "subentry_not_found": "Voice entry not found.",
+        "reconfigure_successful": "Voice updated."
+      }
+    }
+  }
+}

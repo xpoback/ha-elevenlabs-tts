@@ -1,0 +1,225 @@
+"""TTS entities for ElevenLabs."""
+
+from __future__ import annotations
+
+from collections.abc import AsyncGenerator
+import logging
+from typing import Any
+
+from homeassistant.components.tts import (
+    TTSAudioRequest,
+    TTSAudioResponse,
+    TextToSpeechEntity,
+    TtsAudioType,
+)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from . import ElevenLabsConfigEntry
+from .const import (
+    CONF_LANGUAGE_CODE,
+    CONF_MODEL,
+    CONF_PROFILE_NAME,
+    CONF_SIMILARITY_BOOST,
+    CONF_SPEAKER_BOOST,
+    CONF_STABILITY,
+    CONF_STREAMING_MODE,
+    CONF_STYLE,
+    CONF_VOICE_ID,
+    DEFAULT_MODEL,
+    DEFAULT_SIMILARITY_BOOST,
+    DEFAULT_SPEAKER_BOOST,
+    DEFAULT_STABILITY,
+    DEFAULT_STREAMING_MODE,
+    DEFAULT_STYLE,
+    DOMAIN,
+    STREAMING_MODE_STREAM,
+    SUBENTRY_TYPE_VOICE,
+)
+from .elevenlabs_api import (
+    ElevenLabsApiError,
+    ElevenLabsAuthError,
+    ElevenLabsConnectionError,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ElevenLabsConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up TTS entities from ElevenLabs subentries."""
+    entities: list[tuple[ElevenLabsVoiceEntity, str]] = []
+    for subentry_id, subentry in entry.subentries.items():
+        if getattr(subentry, "subentry_type", None) != SUBENTRY_TYPE_VOICE:
+            continue
+        entities.append(
+            (ElevenLabsVoiceEntity(parent_entry=entry, voice_subentry=subentry), subentry_id)
+        )
+
+    for entity, subentry_id in entities:
+        async_add_entities([entity], config_subentry_id=subentry_id)
+
+
+class ElevenLabsVoiceEntity(TextToSpeechEntity):
+    """A per-voice ElevenLabs TTS entity."""
+
+    _attr_has_entity_name = True
+    _attr_should_poll = False
+
+    def __init__(self, *, parent_entry: ElevenLabsConfigEntry, voice_subentry: ConfigEntry) -> None:
+        """Initialize the entity."""
+        self._parent_entry = parent_entry
+        self._voice_subentry = voice_subentry
+
+        self._attr_unique_id = voice_subentry.data["unique_id"]
+        self._attr_name = voice_subentry.data[CONF_PROFILE_NAME]
+
+    @property
+    def default_language(self) -> str:
+        """Return the default language."""
+        return "en"
+
+    @property
+    def supported_languages(self) -> list[str]:
+        """Return a wildcard language list and pass languages through to ElevenLabs."""
+        return ["*"]
+
+    @property
+    def supported_options(self) -> list[str]:
+        """Return supported TTS options."""
+        return [
+            CONF_MODEL,
+            CONF_VOICE_ID,
+            CONF_STREAMING_MODE,
+            CONF_STABILITY,
+            CONF_SIMILARITY_BOOST,
+            CONF_STYLE,
+            CONF_SPEAKER_BOOST,
+            CONF_LANGUAGE_CODE,
+        ]
+
+    @property
+    def default_options(self) -> dict[str, Any]:
+        """Return options used for cache keys and service defaults."""
+        return {
+            CONF_MODEL: self._voice_subentry.data.get(CONF_MODEL, DEFAULT_MODEL),
+            CONF_VOICE_ID: self._voice_subentry.data[CONF_VOICE_ID],
+            CONF_STREAMING_MODE: self._voice_subentry.data.get(
+                CONF_STREAMING_MODE, DEFAULT_STREAMING_MODE
+            ),
+            CONF_STABILITY: self._voice_subentry.data.get(CONF_STABILITY, DEFAULT_STABILITY),
+            CONF_SIMILARITY_BOOST: self._voice_subentry.data.get(
+                CONF_SIMILARITY_BOOST, DEFAULT_SIMILARITY_BOOST
+            ),
+            CONF_STYLE: self._voice_subentry.data.get(CONF_STYLE, DEFAULT_STYLE),
+            CONF_SPEAKER_BOOST: self._voice_subentry.data.get(
+                CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST
+            ),
+        }
+
+    @property
+    def device_info(self) -> dict[str, Any]:
+        """Return device information for the voice entity."""
+        return {
+            "identifiers": {(DOMAIN, self._attr_unique_id)},
+            "manufacturer": "ElevenLabs",
+            "model": self._voice_subentry.data.get(CONF_MODEL, DEFAULT_MODEL),
+            "name": self._voice_subentry.data[CONF_PROFILE_NAME],
+        }
+
+    async def async_get_tts_audio(
+        self,
+        message: str,
+        language: str,
+        options: dict[str, Any] | None = None,
+    ) -> TtsAudioType:
+        """Generate audio for a full TTS request."""
+        merged_options = self._merged_options(language, options)
+        client = self._parent_entry.runtime_data.client
+
+        try:
+            if merged_options[CONF_STREAMING_MODE] == STREAMING_MODE_STREAM:
+                audio = bytearray()
+                async for chunk in client.stream_text(
+                    voice_id=merged_options[CONF_VOICE_ID],
+                    text=message,
+                    model=merged_options[CONF_MODEL],
+                    voice_settings=self._voice_settings(merged_options),
+                    language_code=merged_options.get(CONF_LANGUAGE_CODE),
+                ):
+                    audio.extend(chunk)
+                return ("mp3", bytes(audio))
+
+            audio = await client.convert_text(
+                voice_id=merged_options[CONF_VOICE_ID],
+                text=message,
+                model=merged_options[CONF_MODEL],
+                voice_settings=self._voice_settings(merged_options),
+                language_code=merged_options.get(CONF_LANGUAGE_CODE),
+            )
+            return ("mp3", audio)
+        except ElevenLabsAuthError as err:
+            _LOGGER.error("Authentication failed for %s: %s", self.entity_id, err)
+        except ElevenLabsConnectionError as err:
+            _LOGGER.error("Connection failed for %s: %s", self.entity_id, err)
+        except ElevenLabsApiError as err:
+            _LOGGER.error("ElevenLabs request failed for %s: %s", self.entity_id, err)
+
+        return None
+
+    async def async_stream_tts_audio(
+        self, request: TTSAudioRequest
+    ) -> TTSAudioResponse:
+        """Generate streaming audio for Assist pipelines."""
+        merged_options = self._merged_options(request.language, request.options)
+        client = self._parent_entry.runtime_data.client
+
+        async def message_to_audio() -> AsyncGenerator[bytes, None]:
+            """Collect the incoming text stream and emit audio chunks."""
+            text = ""
+            async for chunk in request.message_gen:
+                text += chunk
+
+            if merged_options[CONF_STREAMING_MODE] != STREAMING_MODE_STREAM:
+                audio = await client.convert_text(
+                    voice_id=merged_options[CONF_VOICE_ID],
+                    text=text,
+                    model=merged_options[CONF_MODEL],
+                    voice_settings=self._voice_settings(merged_options),
+                    language_code=merged_options.get(CONF_LANGUAGE_CODE),
+                )
+                yield audio
+                return
+
+            async for audio_chunk in client.stream_text(
+                voice_id=merged_options[CONF_VOICE_ID],
+                text=text,
+                model=merged_options[CONF_MODEL],
+                voice_settings=self._voice_settings(merged_options),
+                language_code=merged_options.get(CONF_LANGUAGE_CODE),
+            ):
+                yield audio_chunk
+
+        return TTSAudioResponse(extension="mp3", data_gen=message_to_audio())
+
+    def _merged_options(
+        self, language: str | None, options: dict[str, Any] | None
+    ) -> dict[str, Any]:
+        """Merge entity defaults with request overrides."""
+        merged = {**self.default_options, **(options or {})}
+        if CONF_LANGUAGE_CODE not in merged and language and language != "*":
+            merged[CONF_LANGUAGE_CODE] = language
+        return merged
+
+    def _voice_settings(self, options: dict[str, Any]) -> dict[str, Any]:
+        """Extract ElevenLabs voice settings from merged options."""
+        return {
+            "stability": float(options[CONF_STABILITY]),
+            "similarity_boost": float(options[CONF_SIMILARITY_BOOST]),
+            "style": float(options[CONF_STYLE]),
+            "use_speaker_boost": bool(options[CONF_SPEAKER_BOOST]),
+        }

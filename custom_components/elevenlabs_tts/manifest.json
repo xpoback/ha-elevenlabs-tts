@@ -1,0 +1,13 @@
+{
+  "domain": "elevenlabs_tts",
+  "name": "ElevenLabs TTS",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/xpoback/ha-elevenlabs-tts",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "loggers": ["custom_components.elevenlabs_tts"],
+  "requirements": [],
+  "version": "0.1.0"
+}
