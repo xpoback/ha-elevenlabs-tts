@@ -16,6 +16,7 @@ from homeassistant.components.tts import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import DeviceInfo
 
 from . import ElevenLabsConfigEntry
 from .const import (
@@ -82,6 +83,7 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
 
     _attr_has_entity_name = False
     _attr_should_poll = False
+    _attr_translation_key = "voice"
 
     def __init__(self, *, parent_entry: ElevenLabsConfigEntry, voice_subentry: ConfigEntry) -> None:
         """Initialize the entity."""
@@ -157,6 +159,16 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
             ),
         }
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return a shared device for the ElevenLabs integration."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._parent_entry.entry_id)},
+            manufacturer="ElevenLabs",
+            model="Cloud TTS",
+            name="ElevenLabs TTS",
+        )
 
     async def async_get_tts_audio(
         self,
