@@ -7,6 +7,7 @@
   "documentation": "https://github.com/xpoback/ha-elevenlabs-tts",
   "integration_type": "service",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/xpoback/ha-elevenlabs-tts/issues",
   "loggers": ["custom_components.elevenlabs_tts"],
   "requirements": [],
   "version": "1.0.0"
