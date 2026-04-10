@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import hashlib
 import random
+import uuid
 from typing import Any
 
 import voluptuous as vol
@@ -57,14 +57,6 @@ from .elevenlabs_api import (
     ElevenLabsAuthError,
     ElevenLabsConnectionError,
 )
-
-
-def _profile_unique_id(voice_id: str) -> str:
-    """Create a stable unique ID for a voice profile."""
-    digest = hashlib.sha256(voice_id.encode()).hexdigest()[:16]
-    return f"{DOMAIN}_{digest}"
-
-
 def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     """Return the schema for a voice subentry."""
     defaults = defaults or {}
@@ -331,7 +323,7 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
             else:
                 data = {
                     **user_input,
-                    "unique_id": _profile_unique_id(user_input[CONF_VOICE_ID]),
+                    "unique_id": uuid.uuid4().hex,
                 }
                 return self.async_create_entry(
                     title=user_input[CONF_PROFILE_NAME],
@@ -366,7 +358,7 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
                         **subentry.data,
                         **user_input,
                         "unique_id": subentry.data.get(
-                            "unique_id", _profile_unique_id(user_input[CONF_VOICE_ID])
+                            "unique_id", uuid.uuid4().hex
                         ),
                     },
                     title=user_input[CONF_PROFILE_NAME],

@@ -87,7 +87,11 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
         self._parent_entry = parent_entry
         self._voice_subentry = voice_subentry
 
-        self._attr_unique_id = voice_subentry.data["unique_id"]
+        self._attr_unique_id = getattr(
+            voice_subentry,
+            "subentry_id",
+            voice_subentry.data["unique_id"],
+        )
         self._attr_name = f"ElevenLabs TTS {voice_subentry.data[CONF_PROFILE_NAME]}"
         self._attr_config_entry_id = getattr(voice_subentry, "subentry_id", parent_entry.entry_id)
         profile_slug = re.sub(r"[^a-z0-9_]+", "_", voice_subentry.data[CONF_PROFILE_NAME].lower())
