@@ -57,8 +57,8 @@
       },
       "step": {
         "user": {
-          "title": "Add ElevenLabs voice",
-          "description": "Create a TTS voice entity backed by the configured ElevenLabs account.",
+          "title": "Add ElevenLabs voice: basic settings",
+          "description": "Step 1 of 2. Set the basic identity and model for this voice entity.",
           "data": {
             "profile_name": "Voice name",
             "voice_id": "ElevenLabs voice ID",
@@ -73,8 +73,8 @@
           }
         },
         "voice_options": {
-          "title": "Configure voice options",
-          "description": "Set model-specific voice options. Eleven v3 uses audio tags for speed control and does not support speaker boost.",
+          "title": "Add ElevenLabs voice: voice parameters",
+          "description": "Step 2 of 2. Set the voice parameters and model-specific options. Eleven v3 uses audio tags for speed control and does not support speaker boost.",
           "data": {
             "stability": "Stability",
             "similarity_boost": "Similarity boost",
@@ -99,8 +99,8 @@
           }
         },
         "reconfigure": {
-          "title": "Update ElevenLabs voice",
-          "description": "Change the settings for this TTS voice entity.",
+          "title": "Update ElevenLabs voice: basic settings",
+          "description": "Step 1 of 2. Change the basic identity and model for this TTS voice entity.",
           "data": {
             "profile_name": "Voice name",
             "voice_id": "ElevenLabs voice ID",
@@ -115,8 +115,8 @@
           }
         },
         "reconfigure_voice_options": {
-          "title": "Update voice options",
-          "description": "Change model-specific voice options. Eleven v3 uses audio tags for speed control and does not support speaker boost.",
+          "title": "Update ElevenLabs voice: voice parameters",
+          "description": "Step 2 of 2. Change the voice parameters and model-specific options. Eleven v3 uses audio tags for speed control and does not support speaker boost.",
           "data": {
             "stability": "Stability",
             "similarity_boost": "Similarity boost",
