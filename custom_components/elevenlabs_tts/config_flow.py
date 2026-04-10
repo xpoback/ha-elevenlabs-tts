@@ -111,13 +111,6 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                 }
             }
         ),
-        vol.Optional(
-            CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
-            default=defaults.get(
-                CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
-                DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
-            ),
-        ): selector({"boolean": {}}),
     }
 
     if defaults.get(CONF_MODEL) != MODEL_ELEVEN_V3:
@@ -128,6 +121,13 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         schema[vol.Optional(
             CONF_SPEAKER_BOOST,
             default=defaults.get(CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST),
+        )] = selector({"boolean": {}})
+        schema[vol.Optional(
+            CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+            default=defaults.get(
+                CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+                DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+            ),
         )] = selector({"boolean": {}})
 
     return vol.Schema(schema)

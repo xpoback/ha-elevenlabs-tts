@@ -193,8 +193,8 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                     apply_text_normalization=merged_options.get(
                         CONF_APPLY_TEXT_NORMALIZATION
                     ),
-                    apply_language_text_normalization=merged_options.get(
-                        CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                    apply_language_text_normalization=self._apply_language_text_normalization(
+                        merged_options
                     ),
                 ):
                     audio.extend(chunk)
@@ -210,8 +210,8 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 apply_text_normalization=merged_options.get(
                     CONF_APPLY_TEXT_NORMALIZATION
                 ),
-                apply_language_text_normalization=merged_options.get(
-                    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                apply_language_text_normalization=self._apply_language_text_normalization(
+                    merged_options
                 ),
             )
             return ("mp3", audio)
@@ -248,8 +248,8 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                     apply_text_normalization=merged_options.get(
                         CONF_APPLY_TEXT_NORMALIZATION
                     ),
-                    apply_language_text_normalization=merged_options.get(
-                        CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                    apply_language_text_normalization=self._apply_language_text_normalization(
+                        merged_options
                     ),
                 )
                 yield audio
@@ -269,8 +269,8 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 apply_text_normalization=merged_options.get(
                     CONF_APPLY_TEXT_NORMALIZATION
                 ),
-                apply_language_text_normalization=merged_options.get(
-                    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
+                apply_language_text_normalization=self._apply_language_text_normalization(
+                    merged_options
                 ),
             ):
                 buffered_chunks.append(audio_chunk)
@@ -331,3 +331,11 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
             return None
         seed = options.get(CONF_SEED)
         return int(seed) if seed is not None else None
+
+    def _apply_language_text_normalization(
+        self, options: dict[str, Any]
+    ) -> bool | None:
+        """Return language-aware normalization when supported by the model."""
+        if options[CONF_MODEL] == MODEL_ELEVEN_V3:
+            return None
+        return options.get(CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION)
