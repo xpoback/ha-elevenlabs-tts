@@ -310,7 +310,6 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
                         ),
                     },
                     title=user_input[CONF_PROFILE_NAME],
-                    reason="reconfigure_successful",
                 )
 
         return self.async_show_form(
