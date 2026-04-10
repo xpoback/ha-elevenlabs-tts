@@ -44,6 +44,7 @@ from .const import (
     DEFAULT_STREAMING_MODE,
     DEFAULT_STYLE,
     DOMAIN,
+    MODEL_ELEVEN_V3,
     STREAMING_MODE_STREAM,
     STREAMING_STARTUP_BUFFER_BYTES,
     SUPPORTED_LANGUAGES,
@@ -302,13 +303,15 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
 
     def _voice_settings(self, options: dict[str, Any]) -> dict[str, Any]:
         """Extract ElevenLabs voice settings from merged options."""
-        return {
+        settings = {
             "stability": float(options[CONF_STABILITY]),
             "similarity_boost": float(options[CONF_SIMILARITY_BOOST]),
             "style": float(options[CONF_STYLE]),
-            "speed": float(options[CONF_SPEED]),
-            "use_speaker_boost": bool(options[CONF_SPEAKER_BOOST]),
         }
+        if options[CONF_MODEL] != MODEL_ELEVEN_V3:
+            settings["speed"] = float(options[CONF_SPEED])
+            settings["use_speaker_boost"] = bool(options[CONF_SPEAKER_BOOST])
+        return settings
 
     def _seed_value(self, options: dict[str, Any]) -> int | None:
         """Return the configured seed when enabled."""

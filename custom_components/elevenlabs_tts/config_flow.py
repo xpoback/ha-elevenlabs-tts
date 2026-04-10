@@ -46,6 +46,7 @@ from .const import (
     DEFAULT_STREAMING_MODE,
     DEFAULT_STYLE,
     DOMAIN,
+    MODEL_ELEVEN_V3,
     MODEL_OPTIONS,
     STREAMING_MODE_CONVERT,
     STREAMING_MODE_STREAM,
@@ -63,6 +64,78 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     seed_default = defaults.get(CONF_SEED)
     if seed_default is None:
         seed_default = random.randint(0, 4_294_967_295)
+    schema: dict[Any, Any] = {
+        vol.Optional(
+            CONF_STABILITY,
+            default=defaults.get(CONF_STABILITY, DEFAULT_STABILITY),
+        ): selector({"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}),
+        vol.Optional(
+            CONF_SIMILARITY_BOOST,
+            default=defaults.get(CONF_SIMILARITY_BOOST, DEFAULT_SIMILARITY_BOOST),
+        ): selector({"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}),
+        vol.Optional(
+            CONF_STYLE,
+            default=defaults.get(CONF_STYLE, DEFAULT_STYLE),
+        ): selector({"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}),
+        vol.Optional(
+            CONF_SEED_ENABLED,
+            default=defaults.get(CONF_SEED_ENABLED, DEFAULT_SEED_ENABLED),
+        ): selector({"boolean": {}}),
+        vol.Optional(
+            CONF_SEED,
+            default=seed_default,
+        ): selector(
+            {
+                "number": {
+                    "min": 0,
+                    "max": 4294967295,
+                    "step": 1,
+                    "mode": "box",
+                }
+            }
+        ),
+        vol.Optional(
+            CONF_APPLY_TEXT_NORMALIZATION,
+            default=defaults.get(
+                CONF_APPLY_TEXT_NORMALIZATION, DEFAULT_APPLY_TEXT_NORMALIZATION
+            ),
+        ): selector(
+            {
+                "select": {
+                    "options": [
+                        {"value": "auto", "label": "Auto"},
+                        {"value": "on", "label": "On"},
+                        {"value": "off", "label": "Off"},
+                    ],
+                    "mode": "dropdown",
+                }
+            }
+        ),
+        vol.Optional(
+            CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+            default=defaults.get(
+                CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+                DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
+            ),
+        ): selector({"boolean": {}}),
+    }
+
+    if defaults.get(CONF_MODEL) != MODEL_ELEVEN_V3:
+        schema[vol.Optional(
+            CONF_SPEED,
+            default=defaults.get(CONF_SPEED, DEFAULT_SPEED),
+        )] = selector({"number": {"min": 0.7, "max": 1.2, "step": 0.01, "mode": "box"}})
+        schema[vol.Optional(
+            CONF_SPEAKER_BOOST,
+            default=defaults.get(CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST),
+        )] = selector({"boolean": {}})
+
+    return vol.Schema(schema)
+
+
+def _voice_base_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
+    """Return the base schema shared by create and reconfigure."""
+    defaults = defaults or {}
     return vol.Schema(
         {
             vol.Required(
@@ -98,75 +171,6 @@ def _voice_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                     }
                 }
             ),
-            vol.Optional(
-                CONF_STABILITY,
-                default=defaults.get(CONF_STABILITY, DEFAULT_STABILITY),
-            ): selector(
-                {"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}
-            ),
-            vol.Optional(
-                CONF_SIMILARITY_BOOST,
-                default=defaults.get(CONF_SIMILARITY_BOOST, DEFAULT_SIMILARITY_BOOST),
-            ): selector(
-                {"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}
-            ),
-            vol.Optional(
-                CONF_STYLE,
-                default=defaults.get(CONF_STYLE, DEFAULT_STYLE),
-            ): selector(
-                {"number": {"min": 0, "max": 1, "step": 0.01, "mode": "box"}}
-            ),
-            vol.Optional(
-                CONF_SPEED,
-                default=defaults.get(CONF_SPEED, DEFAULT_SPEED),
-            ): selector(
-                {"number": {"min": 0.7, "max": 1.2, "step": 0.01, "mode": "box"}}
-            ),
-            vol.Optional(
-                CONF_SPEAKER_BOOST,
-                default=defaults.get(CONF_SPEAKER_BOOST, DEFAULT_SPEAKER_BOOST),
-            ): selector({"boolean": {}}),
-            vol.Optional(
-                CONF_SEED_ENABLED,
-                default=defaults.get(CONF_SEED_ENABLED, DEFAULT_SEED_ENABLED),
-            ): selector({"boolean": {}}),
-            vol.Optional(
-                CONF_SEED,
-                default=seed_default,
-            ): selector(
-                {
-                    "number": {
-                        "min": 0,
-                        "max": 4294967295,
-                        "step": 1,
-                        "mode": "box",
-                    }
-                }
-            ),
-            vol.Optional(
-                CONF_APPLY_TEXT_NORMALIZATION,
-                default=defaults.get(
-                    CONF_APPLY_TEXT_NORMALIZATION, DEFAULT_APPLY_TEXT_NORMALIZATION
-                ),
-            ): selector(
-                {
-                    "select": {
-                        "options": [
-                            {"value": "auto", "label": "Auto"},
-                            {"value": "on", "label": "On"},
-                            {"value": "off", "label": "Off"},
-                        ],
-                        "mode": "dropdown",
-                    }
-                }
-            ),
-            vol.Optional(
-                CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
-                default=defaults.get(
-                    CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION,
-                    DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION,
-                ),
-            ): selector({"boolean": {}}),
         }
     )
 
@@ -311,6 +315,10 @@ class ElevenLabsTtsConfigFlow(ConfigFlow, domain=DOMAIN):
 class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
     """Manage ElevenLabs voice subentries."""
 
+    def __init__(self) -> None:
+        """Initialize flow state."""
+        self._pending_voice_data: dict[str, Any] = {}
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> SubentryFlowResult:
@@ -321,19 +329,33 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
             if await self._profile_exists(user_input[CONF_PROFILE_NAME]):
                 errors["base"] = "already_exists"
             else:
-                data = {
-                    **user_input,
-                    "unique_id": uuid.uuid4().hex,
-                }
-                return self.async_create_entry(
-                    title=user_input[CONF_PROFILE_NAME],
-                    data=data,
-                )
+                self._pending_voice_data = dict(user_input)
+                return await self.async_step_voice_options()
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_voice_schema(),
+            data_schema=_voice_base_schema(),
             errors=errors,
+        )
+
+    async def async_step_voice_options(
+        self, user_input: dict[str, Any] | None = None
+    ) -> SubentryFlowResult:
+        """Collect model-specific voice options."""
+        if user_input is not None:
+            data = {
+                **self._pending_voice_data,
+                **user_input,
+                "unique_id": uuid.uuid4().hex,
+            }
+            return self.async_create_entry(
+                title=data[CONF_PROFILE_NAME],
+                data=data,
+            )
+
+        return self.async_show_form(
+            step_id="voice_options",
+            data_schema=_voice_schema(self._pending_voice_data),
         )
 
     async def async_step_reconfigure(
@@ -351,23 +373,39 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
             ):
                 errors["base"] = "already_exists"
             else:
-                return self.async_update_and_abort(
-                    self._get_entry(),
-                    subentry,
-                    data={
-                        **subentry.data,
-                        **user_input,
-                        "unique_id": subentry.data.get(
-                            "unique_id", uuid.uuid4().hex
-                        ),
-                    },
-                    title=user_input[CONF_PROFILE_NAME],
-                )
+                self._pending_voice_data = {**subentry.data, **user_input}
+                return await self.async_step_reconfigure_voice_options()
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_voice_schema(subentry.data),
+            data_schema=_voice_base_schema(subentry.data),
             errors=errors,
+        )
+
+    async def async_step_reconfigure_voice_options(
+        self, user_input: dict[str, Any] | None = None
+    ) -> SubentryFlowResult:
+        """Reconfigure model-specific voice options."""
+        subentry = self._get_reconfigure_subentry()
+        if subentry is None:
+            return self.async_abort(reason="subentry_not_found")
+
+        if user_input is not None:
+            return self.async_update_and_abort(
+                self._get_entry(),
+                subentry,
+                data={
+                    **subentry.data,
+                    **self._pending_voice_data,
+                    **user_input,
+                    "unique_id": subentry.data.get("unique_id", uuid.uuid4().hex),
+                },
+                title=self._pending_voice_data[CONF_PROFILE_NAME],
+            )
+
+        return self.async_show_form(
+            step_id="reconfigure_voice_options",
+            data_schema=_voice_schema(self._pending_voice_data),
         )
 
     async def _profile_exists(self, profile_name: str) -> bool:

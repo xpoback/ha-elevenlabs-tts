@@ -63,7 +63,19 @@
             "profile_name": "Voice name",
             "voice_id": "ElevenLabs voice ID",
             "model": "Model",
-            "streaming_mode": "Output mode",
+            "streaming_mode": "Output mode"
+          },
+          "data_description": {
+            "profile_name": "Name shown in Home Assistant for this voice entity.",
+            "voice_id": "Exact ElevenLabs voice ID to use for synthesis requests.",
+            "model": "Curated ElevenLabs model selection for this voice.",
+            "streaming_mode": "Choose whether this voice defaults to standard conversion or low-latency streaming."
+          }
+        },
+        "voice_options": {
+          "title": "Configure voice options",
+          "description": "Set model-specific voice options. Eleven v3 uses audio tags for speed control and does not support speaker boost.",
+          "data": {
             "stability": "Stability",
             "similarity_boost": "Similarity boost",
             "style": "Style exaggeration",
@@ -75,10 +87,6 @@
             "apply_language_text_normalization": "Language-aware normalization"
           },
           "data_description": {
-            "profile_name": "Name shown in Home Assistant for this voice entity.",
-            "voice_id": "Exact ElevenLabs voice ID to use for synthesis requests.",
-            "model": "Curated ElevenLabs model selection for this voice.",
-            "streaming_mode": "Choose whether this voice defaults to standard conversion or low-latency streaming.",
             "stability": "Lower values allow more expressive variation; higher values sound more consistent.",
             "similarity_boost": "Higher values try to stay closer to the original source voice.",
             "style": "Increases stylistic exaggeration. Higher values can add expression but may also increase latency.",
@@ -92,12 +100,24 @@
         },
         "reconfigure": {
           "title": "Update ElevenLabs voice",
-          "description": "Change the settings for this TTS voice entity.",
+          "description": "Change the main settings for this TTS voice entity.",
           "data": {
             "profile_name": "Voice name",
             "voice_id": "ElevenLabs voice ID",
             "model": "Model",
-            "streaming_mode": "Output mode",
+            "streaming_mode": "Output mode"
+          },
+          "data_description": {
+            "profile_name": "Name shown in Home Assistant for this voice entity.",
+            "voice_id": "Exact ElevenLabs voice ID to use for synthesis requests.",
+            "model": "Curated ElevenLabs model selection for this voice.",
+            "streaming_mode": "Choose whether this voice defaults to standard conversion or low-latency streaming."
+          }
+        },
+        "reconfigure_voice_options": {
+          "title": "Update voice options",
+          "description": "Change model-specific voice options. Eleven v3 uses audio tags for speed control and does not support speaker boost.",
+          "data": {
             "stability": "Stability",
             "similarity_boost": "Similarity boost",
             "style": "Style exaggeration",
@@ -109,10 +129,6 @@
             "apply_language_text_normalization": "Language-aware normalization"
           },
           "data_description": {
-            "profile_name": "Name shown in Home Assistant for this voice entity.",
-            "voice_id": "Exact ElevenLabs voice ID to use for synthesis requests.",
-            "model": "Curated ElevenLabs model selection for this voice.",
-            "streaming_mode": "Choose whether this voice defaults to standard conversion or low-latency streaming.",
             "stability": "Lower values allow more expressive variation; higher values sound more consistent.",
             "similarity_boost": "Higher values try to stay closer to the original source voice.",
             "style": "Increases stylistic exaggeration. Higher values can add expression but may also increase latency.",

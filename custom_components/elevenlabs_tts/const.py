@@ -20,6 +20,7 @@ CONF_STYLE = "style"
 CONF_VOICE_ID = "voice_id"
 
 SUBENTRY_TYPE_VOICE = "voice"
+MODEL_ELEVEN_V3 = "eleven_v3"
 
 DEFAULT_MODEL = "eleven_multilingual_v2"
 DEFAULT_APPLY_LANGUAGE_TEXT_NORMALIZATION = False
@@ -38,7 +39,7 @@ STREAMING_MODE_STREAM = "stream"
 MODEL_OPTIONS: tuple[str, ...] = (
     "eleven_multilingual_v2",
     "eleven_turbo_v2_5",
-    "eleven_v3",
+    MODEL_ELEVEN_V3,
 )
 
 OUTPUT_FORMAT_MP3 = "mp3_44100_128"
