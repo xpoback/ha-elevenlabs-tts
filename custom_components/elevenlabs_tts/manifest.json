@@ -1,7 +1,7 @@
 {
   "domain": "elevenlabs_tts",
   "name": "ElevenLabs TTS",
-  "codeowners": [],
+  "codeowners": ["@xpoback"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/xpoback/ha-elevenlabs-tts",

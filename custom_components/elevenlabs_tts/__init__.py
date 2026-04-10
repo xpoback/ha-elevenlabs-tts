@@ -7,10 +7,15 @@ from dataclasses import dataclass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN
-from .elevenlabs_api import ElevenLabsApiClient
+from .elevenlabs_api import (
+    ElevenLabsApiClient,
+    ElevenLabsAuthError,
+    ElevenLabsConnectionError,
+)
 
 PLATFORMS: list[Platform] = [Platform.TTS]
 
@@ -29,6 +34,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ElevenLabsConfigEntry) -
     """Set up ElevenLabs TTS from a config entry."""
     session = async_get_clientsession(hass)
     client = ElevenLabsApiClient(api_key=entry.data["api_key"], session=session)
+
+    try:
+        await client.validate_api_key()
+    except ElevenLabsAuthError as err:
+        raise ConfigEntryAuthFailed("Invalid ElevenLabs API key") from err
+    except ElevenLabsConnectionError as err:
+        raise ConfigEntryNotReady("Unable to connect to ElevenLabs") from err
 
     entry.runtime_data = ElevenLabsRuntimeData(client=client)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
