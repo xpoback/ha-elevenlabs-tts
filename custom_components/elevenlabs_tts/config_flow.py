@@ -49,9 +49,9 @@ from .elevenlabs_api import (
 )
 
 
-def _profile_unique_id(profile_name: str, voice_id: str) -> str:
+def _profile_unique_id(voice_id: str) -> str:
     """Create a stable unique ID for a voice profile."""
-    digest = hashlib.sha256(f"{profile_name}:{voice_id}".encode()).hexdigest()[:16]
+    digest = hashlib.sha256(voice_id.encode()).hexdigest()[:16]
     return f"{DOMAIN}_{digest}"
 
 
@@ -271,9 +271,7 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
             else:
                 data = {
                     **user_input,
-                    "unique_id": _profile_unique_id(
-                        user_input[CONF_PROFILE_NAME], user_input[CONF_VOICE_ID]
-                    ),
+                    "unique_id": _profile_unique_id(user_input[CONF_VOICE_ID]),
                 }
                 return self.async_create_entry(
                     title=user_input[CONF_PROFILE_NAME],
@@ -305,8 +303,9 @@ class ElevenLabsVoiceSubentryFlow(ConfigSubentryFlow):
                     subentry,
                     data_updates={
                         **user_input,
-                        "unique_id": _profile_unique_id(
-                            user_input[CONF_PROFILE_NAME], user_input[CONF_VOICE_ID]
+                        "unique_id": subentry.data.get(
+                            "unique_id",
+                            _profile_unique_id(user_input[CONF_VOICE_ID]),
                         ),
                     },
                     title=user_input[CONF_PROFILE_NAME],
