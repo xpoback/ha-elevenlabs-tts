@@ -45,6 +45,7 @@ from .const import (
     DEFAULT_STYLE,
     DOMAIN,
     STREAMING_MODE_STREAM,
+    STREAMING_STARTUP_BUFFER_BYTES,
     SUPPORTED_LANGUAGES,
     SUBENTRY_TYPE_VOICE,
 )
@@ -237,6 +238,10 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                 yield audio
                 return
 
+            buffered_chunks: list[bytes] = []
+            buffered_bytes = 0
+            stream_started = False
+
             async for audio_chunk in client.stream_text(
                 voice_id=merged_options[CONF_VOICE_ID],
                 text=text,
@@ -251,7 +256,34 @@ class ElevenLabsVoiceEntity(TextToSpeechEntity):
                     CONF_APPLY_LANGUAGE_TEXT_NORMALIZATION
                 ),
             ):
+                buffered_chunks.append(audio_chunk)
+                buffered_bytes += len(audio_chunk)
+
+                if not stream_started and buffered_bytes < STREAMING_STARTUP_BUFFER_BYTES:
+                    continue
+
+                if not stream_started:
+                    stream_started = True
+                    _LOGGER.debug(
+                        "Starting ElevenLabs stream for %s after buffering %d bytes",
+                        self.entity_id,
+                        buffered_bytes,
+                    )
+                    for buffered_chunk in buffered_chunks:
+                        yield buffered_chunk
+                    buffered_chunks.clear()
+                    continue
+
                 yield audio_chunk
+
+            if buffered_chunks:
+                _LOGGER.debug(
+                    "ElevenLabs stream for %s completed before buffer threshold; yielding %d buffered chunks",
+                    self.entity_id,
+                    len(buffered_chunks),
+                )
+                for buffered_chunk in buffered_chunks:
+                    yield buffered_chunk
 
         return TTSAudioResponse(extension="mp3", data_gen=message_to_audio())
 

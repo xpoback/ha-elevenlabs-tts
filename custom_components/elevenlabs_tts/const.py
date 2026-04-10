@@ -42,6 +42,7 @@ MODEL_OPTIONS: tuple[str, ...] = (
 )
 
 OUTPUT_FORMAT_MP3 = "mp3_44100_128"
+STREAMING_STARTUP_BUFFER_BYTES = 32 * 1024
 
 API_BASE_URL = "https://api.elevenlabs.io"
 
