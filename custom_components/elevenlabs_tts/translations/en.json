@@ -44,6 +44,12 @@
     }
   },
   "options": {
+    "step": {
+      "init": {
+        "title": "No options available",
+        "description": "Use reconfigure for the API key and subentries for voices."
+      }
+    },
     "abort": {
       "no_options_available": "Use reconfigure for the API key and subentries for voices."
     }
